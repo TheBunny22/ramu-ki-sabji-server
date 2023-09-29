@@ -1,11 +1,11 @@
+require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const { Admin } = require("./models/adminModel");
 const { connect, close } = require("./database/connection");
 const { adminRouter } = require("./routes/adminRoutes");
 const { hashPassword } = require("./helpers/EncryptingPass");
-require("dotenv").config();
-
+const mongoose = require("mongoose");
 const app = express();
 const port = process.env.PORT || 3000;
 
