@@ -1,7 +1,7 @@
 // User document structure
 const mongoose = require("mongoose");
 
-const userSchema = mongoose.Schema({
+const userSchema = new mongoose.Schema({
   username: {
     f_name: { type: String, required: true },
     l_name: { type: String, required: true },
@@ -35,3 +35,9 @@ const userSchema = mongoose.Schema({
     },
   ],
 });
+
+
+const User = mongoose.Model("User", userSchema);
+module.exports = {
+  User,
+};
