@@ -6,6 +6,7 @@ const { connect, close } = require("./database/connection");
 const { adminRouter } = require("./routes/adminRoutes");
 const { hashPassword } = require("./helpers/EncryptingPass");
 const mongoose = require("mongoose");
+const { userRouter } = require("./routes/userRoutes");
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -98,6 +99,7 @@ app.listen(port, async () => {
         </html>`
       );
     });
+    app.use("/user", userRouter);
     app.use("/admin", adminRouter);
   }
 });

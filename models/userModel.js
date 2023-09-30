@@ -1,5 +1,6 @@
 // User document structure
 const mongoose = require("mongoose");
+const { comparePasswords, hashPassword } = require("../helpers/EncryptingPass");
 
 const userSchema = new mongoose.Schema({
   username: {
@@ -28,16 +29,51 @@ const userSchema = new mongoose.Schema({
     zipcode: { type: Number, default: 383001 },
     state: { type: String, default: "Gujarat , In" },
   },
-  cart: [
-    {
-      itemName: { type: String, required: true },
-      price: { type: Number, required: true },
-    },
-  ],
+  cart: {
+    type: Array,
+    default: [],
+  },
 });
 
+// user sign-up / register static function
+userSchema.statics.signUp = async function (
+  f_name,
+  l_name,
+  email,
+  password,
+  mobile
+) {
+  if (!f_name || !l_name || !email || !password || !mobile) {
+    throw new Error("--:DB Provide all Field to Sign-UP");
+  }
+  return this.create({
+    username: {
+      f_name,
+      l_name,
+    },
+    email,
+    password: hashPassword(password),
+    mobile,
+  });
+};
 
-const User = mongoose.Model("User", userSchema);
+// user sign-in / login static function
+userSchema.statics.signIn = async function (email, password) {
+  if (!email || !password) {
+    throw new Error("--:DB Provide all Credentials for User Login:--");
+  }
+  const user = await this.findOne({ email });
+  if (!user) {
+    throw new Error("--:DB User Not Found:--");
+  }
+  const verify = comparePasswords(password, user.password);
+  if (!verify) {
+    return null;
+  }
+  return user;
+};
+
+const User = mongoose.model("User", userSchema);
 module.exports = {
   User,
 };
