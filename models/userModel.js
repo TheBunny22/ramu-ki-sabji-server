@@ -21,7 +21,6 @@ const userSchema = new mongoose.Schema({
   },
   password: { type: String, required: true },
   mobile: { type: Number, required: true },
-  otp: { type: Number },
   address: [
     {
       add_name: { type: String, default: "home", maxlength: 10 },
@@ -63,17 +62,17 @@ userSchema.statics.NewUser = async function (
   });
 };
 
-// match otp
-userSchema.statics.matchOtp = async function (_id, otp) {
-  if (!_id || !otp) {
-    throw new Error("--:DB Provide all Credentials for Otp Verification:--");
-  }
-  const user = await this.findOne({ _id });
-  if (user.otp != otp) {
-    return null;
-  }
-  return user;
-};
+// // match otp
+// userSchema.statics.matchOtp = async function (_id, otp) {
+//   if (!_id || !otp) {
+//     throw new Error("--:DB Provide all Credentials for Otp Verification:--");
+//   }
+//   const user = await this.findOne({ _id });
+//   if (user.otp != otp) {
+//     return null;
+//   }
+//   return user;
+// };
 
 // user sign-in / login static function
 userSchema.statics.signIn = async function (email, password) {
