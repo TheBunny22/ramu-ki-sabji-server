@@ -41,7 +41,7 @@ const add_Address = async (_id, add_name, street, landmark) => {
   if (!Updated) {
     return null;
   }
-  return Updated;
+  return true;
 };
 
 const remove_address = async (_id, add_name) => {
@@ -52,7 +52,35 @@ const remove_address = async (_id, add_name) => {
   if (!updated) {
     return null;
   }
-  return updated;
+  return true;
+};
+const update_mobile = async (_id, mobile) => {
+  if (!_id || !add_name) {
+    return null;
+  }
+  const updated = await User.findOneAndUpdate(
+    { _id: _id },
+    { $set: { mobile: mobile } },
+    { new: true }
+  );
+  if (!updated) {
+    return null;
+  }
+  return true;
+};
+const update_email = async (_id, email) => {
+  if (!_id || !add_name) {
+    return null;
+  }
+  const updated = await User.findOneAndUpdate(
+    { _id: _id },
+    { $set: { email: email } },
+    { new: true }
+  );
+  if (!updated) {
+    return null;
+  }
+  return true;
 };
 
 const UpdateProfile = async (req, res) => {
@@ -62,7 +90,7 @@ const UpdateProfile = async (req, res) => {
     let update;
     switch (updateType) {
       case "reset_password":
-        update = resetPassword(_id, data);
+        update = resetPassword(_id, data.password);
         break;
       case "add_address":
         update = add_Address(_id, data.add_name, data.street, data.landmark);
@@ -70,12 +98,18 @@ const UpdateProfile = async (req, res) => {
       case "remove_address":
         update = remove_address(_id, data.add_name);
         break;
+      case "update_email":
+        update = update_email(_id, data.email);
+        break;
+      case "update_mobile":
+        update = update_mobile(_id, data.mobile);
+        break;
       default:
         return res.status(400).json({ msg: "Provide updateType in json body" });
     }
     return res
       .status(200)
-      .json({ msg: `Update of ${updateType} is done`, update });
+      .json({ msg: `Update type : ${updateType} is done`, updated: update });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ msg: "Internal server error " });
