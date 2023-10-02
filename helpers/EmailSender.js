@@ -1,20 +1,24 @@
 const nodemailer = require("nodemailer");
 require("dotenv").config();
-
-const email = process.env.EMAIL_MAILER;
-const pass = process.env.EMAIL_PASS;
+const fs = require("fs");
+const path = require("path");
+const email = "info@sanjarienglishacademy.in";
+const pass = "D8VMwdiuea7g";
 
 // Create a transporter object using the default SMTP transport
-const transporter = nodemailer.createTransport({
-  service: "gmail", 
-  auth: {
-    user: email, // your email address
-    pass: pass, // your email password
-  },
-});
 
 // Function to send an email
-function EmailSender(receiverEmail, subject, html) {
+async function EmailSender(receiverEmail, subject, html) {
+  const transporter = await nodemailer.createTransport({
+    host: "smtp.zoho.in",
+    port: 465,
+    secure: true,
+    auth: {
+      user: email, // your email address
+      pass: pass, // your email password
+    },
+  });
+
   // Define email data
   const mailOptions = {
     from: "kingkiller22122002@gmail.com",
@@ -22,15 +26,18 @@ function EmailSender(receiverEmail, subject, html) {
     subject: subject,
     html: html,
   };
-
-  // Send the email
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      console.error("Error sending email:", error);
-    } else {
-      console.log("Email sent:", info.response);
-    }
-  });
+  try {
+    // Send the email
+    await transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error("Error sending email:", error);
+      } else {
+        console.log("Email sent:", info.response);
+      }
+    });
+  } catch (error) {
+    throw new Error(error);
+  }
 }
 
 module.exports = { EmailSender };

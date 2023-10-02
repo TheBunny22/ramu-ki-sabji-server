@@ -21,22 +21,27 @@ const userSchema = new mongoose.Schema({
   },
   password: { type: String, required: true },
   mobile: { type: Number, required: true },
-  address: {
-    no: { type: String, default: "", trim: true, maxlength: 10 },
-    street: { type: String, default: "" },
-    landmark: { type: String, default: "" },
-    city: { type: String, default: "Himmatnagar" },
-    zipcode: { type: Number, default: 383001 },
-    state: { type: String, default: "Gujarat , In" },
-  },
-  cart: {
-    type: Array,
-    default: [],
-  },
+  otp: { type: Number },
+  address: [
+    {
+      add_name: { type: String, default: "home", maxlength: 10 },
+      street: { type: String, default: "" },
+      landmark: { type: String, default: "" },
+      city: { type: String, default: "Himmatnagar" },
+      zipcode: { type: Number, default: 383001 },
+      state: { type: String, default: "Gujarat , In" },
+    },
+  ],
+  cart: [
+    {
+      cart_id: { type: mongoose.Schema.Types.ObjectId, required: true }, // Assuming you use MongoDB ObjectId for items
+      quantity: { type: Number, required: true },
+    },
+  ],
 });
 
 // user sign-up / register static function
-userSchema.statics.signUp = async function (
+userSchema.statics.NewUser = async function (
   f_name,
   l_name,
   email,
@@ -46,6 +51,7 @@ userSchema.statics.signUp = async function (
   if (!f_name || !l_name || !email || !password || !mobile) {
     throw new Error("--:DB Provide all Field to Sign-UP");
   }
+
   return this.create({
     username: {
       f_name,
@@ -55,6 +61,18 @@ userSchema.statics.signUp = async function (
     password: hashPassword(password),
     mobile,
   });
+};
+
+// match otp
+userSchema.statics.matchOtp = async function (_id, otp) {
+  if (!_id || !otp) {
+    throw new Error("--:DB Provide all Credentials for Otp Verification:--");
+  }
+  const user = await this.findOne({ _id });
+  if (user.otp != otp) {
+    return null;
+  }
+  return user;
 };
 
 // user sign-in / login static function
@@ -70,6 +88,89 @@ userSchema.statics.signIn = async function (email, password) {
   if (!verify) {
     return null;
   }
+  return user;
+};
+
+// get cart item
+userSchema.statics.getCart = async function (_id) {
+  const cart = await this.findById(_id, "cart");
+  return cart.cart;
+};
+
+// function to address in user
+userSchema.statics.addAddress = async function(userId, address) {
+  try {
+    const updatedUser = await this.findOneAndUpdate(
+      { _id: userId },
+      { $push: { address: address } },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      throw new Error("User not found");
+    }
+
+    return updatedUser;
+  } catch (error) {
+    console.error(error.message);
+    throw new Error("Error adding address");
+  }
+};
+
+// Static function to remove an address by add_name
+userSchema.statics.removeAddress = async function (userId, addName) {
+  const user = await this.findById(userId);
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const updatedAddresses = user.address.filter(
+    (address) => address.add_name !== addName
+  );
+  user.address = updatedAddresses;
+  await user.save();
+
+  return user;
+};
+
+userSchema.statics.addItemToCart = async function (userId, item) {
+  const user = await this.findById(userId);
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  user.cart.push(item);
+  await user.save();
+
+  return user;
+};
+
+// Static function to remove an item from the cart by item_id
+userSchema.statics.removeItemFromCart = async function (userId, cartId) {
+  const user = await this.findById(userId);
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const updatedCart = user.cart.filter(
+    (cartItem) => cartItem.cart_id.toString() !== cartId.toString()
+  );
+  user.cart = updatedCart;
+  await user.save();
+
+  return user;
+};
+
+// Static function to empty the cart
+userSchema.statics.emptyCart = async function (_id) {
+  const user = await this.findById(_id);
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  user.cart = [];
+  await user.save();
+
   return user;
 };
 

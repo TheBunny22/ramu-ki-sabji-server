@@ -8,12 +8,13 @@ const { hashPassword } = require("./helpers/EncryptingPass");
 const mongoose = require("mongoose");
 const { userRouter } = require("./routes/userRoutes");
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT ;
 
 // Parse JSON and URL-encoded data
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
+app.use("/user", userRouter);
+app.use("/admin", adminRouter);
 // Start the server
 app.listen(port, async () => {
   console.log(`Server is running on port http://localhost:${port}`);
@@ -99,7 +100,6 @@ app.listen(port, async () => {
         </html>`
       );
     });
-    app.use("/user", userRouter);
-    app.use("/admin", adminRouter);
+  
   }
 });
