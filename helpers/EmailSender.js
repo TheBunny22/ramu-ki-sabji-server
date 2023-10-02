@@ -2,8 +2,8 @@ const nodemailer = require("nodemailer");
 require("dotenv").config();
 const fs = require("fs");
 const path = require("path");
-const email = "info@sanjarienglishacademy.in";
-const pass = "D8VMwdiuea7g";
+const email = "";
+const pass = "";
 
 // Create a transporter object using the default SMTP transport
 
